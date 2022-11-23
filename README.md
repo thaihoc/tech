@@ -1,3 +1,3 @@
-# tech
+# Tech Sharing
 
-Chia sẽ các kiến thức công nghệ
+Chia sẽ các kiến thức công nghệ.
