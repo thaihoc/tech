@@ -46,12 +46,18 @@ minikube dashboard
 
 Pause Kubernetes without impacting deployed applications:
 
-`minikube pause`
+```
+minikube pause
+```
 
 Unpause a paused instance:
 
-`minikube unpause`
+```
+minikube unpause
+```
 
 Stop the cluster
 
-`minikube stop`
+```
+minikube stop
+```
