@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Service
+metadata:
+ name: keycloak
+spec:
+ ports:
+ - port: 8080
+   name: https-keycloak
+ clusterIP: None
+ selector:
+   app: keycloak
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: keycloak
+spec:
+  selector:
+    matchLabels:
+      app: keycloak 
+  serviceName: "keycloak"
+  replicas: 1 
+  minReadySeconds: 30 
+  template:
+    metadata:
+      labels:
+        app: keycloak 
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: keycloak
+        image: quay.io/keycloak/keycloak:20.0.1
+        ports:
+        - containerPort: 8080
+          name: https-keycloak
+        env:
+        # admin console dashboard
+        - name: KEYCLOAK_ADMIN
+          value: "admin"
+        - name: KEYCLOAK_ADMIN_PASSWORD
+          value: "1122"
+        # cache
+        - name: KC_CACHE
+          value: "ispn"
+        - name: KC_CACHE_STACK
+          value: "kubernetes"
+        - name: JAVA_OPTS_APPEND
+          value: "-Djgroups.dns.query=keycloak.default"
+        # database
+        - name: KC_DB
+          value: "postgres"
+        - name: KC_DB_PASSWORD
+          value: "1122"
+        - name: KC_DB_POOL_MAX_SIZE
+          value: "1000"
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://postgres.default:5432/keycloak"
+        - name: KC_DB_USERNAME
+          value: "keycloak"
+        # hostname
+        - name: KC_HOSTNAME_URL
+          value: "http://192.168.59.100:"
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_LOG
+          value: "console,file"
+        # health check
+        - name: KC_HEALTH_ENABLED
+          value: "true"
+        # metrics
+        - name: KC_METRICS_ENABLED
+          value: "true"
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        args: ["start "]
+
+        
+        
